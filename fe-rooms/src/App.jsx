@@ -9,8 +9,10 @@ const App = () => {
   const [clients, setClients] = useState([]);
   const [room, setRoom] = useState("");
   const [messages, setMessages] = useState([]);
+  const [roomMessages, setRoomMessages] = useState({});
 
   const usernameInputRef = useRef(null);
+  const messageInputRef = useRef(null);
 
   const handleUsername = (event) => {
     setUsername(event.target.value);
@@ -20,7 +22,7 @@ const App = () => {
     if (username) {
       usernameInputRef.current.disabled = true;
       console.log(username);
-      socket = io("http://localhost:3035/", {
+      socket = io("https://c9knnnk6-3035.use2.devtunnels.ms/", {
         query: { username, hobbie: "programming" },
       });
       socket.on("connect", () => {
@@ -48,8 +50,10 @@ const App = () => {
     socket.emit("createRoom", targetUsername);
   };
 
-  const sendMessage = (content) => {
+  const sendMessage = () => {
+    const content = messageInputRef.current.value;
     socket.emit("message", { room, content });
+    messageInputRef.current.value = "";
   };
 
   useEffect(() => {
@@ -58,12 +62,20 @@ const App = () => {
         setClients(clients.filter((client) => client !== username));
       });
 
-      socket.on("roomJoined", (room) => {
-        setRoom(room);
+      socket.on("roomJoined", (newRoom) => {
+        setRoom(newRoom);
+        setMessages(roomMessages[newRoom] || []);
       });
 
       socket.on("message", (message) => {
-        setMessages((prevMessages) => [...prevMessages, message]);
+        setMessages((prevMessages) => {
+          const newMessages = [...prevMessages, message];
+          setRoomMessages((prevRoomMessages) => ({
+            ...prevRoomMessages,
+            [room]: newMessages,
+          }));
+          return newMessages;
+        });
       });
 
       return () => {
@@ -72,7 +84,7 @@ const App = () => {
         socket.off("message");
       };
     }
-  }, [isConnected, username]);
+  }, [isConnected, username, room, roomMessages]);
 
   return (
     <div>
@@ -97,8 +109,8 @@ const App = () => {
             <h3>Clientes Conectados</h3>
             <ul>
               {clients.map((client, index) => (
-                <li key={index} onClick={() => createRoom(client)}>
-                  {client}
+                <li key={index}>
+                  {client} <button onClick={() => createRoom(client)}>Chatear</button>
                 </li>
               ))}
             </ul>
@@ -112,12 +124,14 @@ const App = () => {
                 </div>
               ))}
             </div>
-            <input
+            {/* <input
               type="text"
               onKeyDown={(e) => {
                 if (e.key === "Enter") sendMessage(e.target.value);
               }}
-            />
+            /> */}
+            <input type="text" ref={messageInputRef}></input>
+            <button onClick={sendMessage}>Enviar</button>
           </div>
         </div>
       )}
