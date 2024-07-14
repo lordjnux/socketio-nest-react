@@ -43,14 +43,6 @@ export class SocketGateway
     // console.log('client:', client);
   }
 
-  @SubscribeMessage('join-room')
-  handleJoinRoom(client: Socket, room: 'string') {
-    console.warn('Client join-room...');
-    console.log('client:', client.id);
-    console.log('room:', room);
-    client.join(`room-${room}`);
-  }
-
   @SubscribeMessage('message-sent')
   handleIncomminMessage(
     client: Socket,
@@ -60,13 +52,5 @@ export class SocketGateway
     console.log(payload);
 
     this.server.emit('newMessage', payload);
-  }
-
-  @SubscribeMessage('room-leave')
-  handleRoomLeave(client: Socket, room: string) {
-    console.warn('Client room-leave...');
-    // console.log('client:', client);
-    // console.log('room:', room);
-    // client.leave(`room-${room}`);
   }
 }

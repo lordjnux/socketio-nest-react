@@ -4,6 +4,8 @@ import "./App.css";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:8083"); // TODO: <--- variable de entorno
+// const socket = io("http://localhost:3017"); //!! dev
+// const socket = io("https://backend-hobbify.onrender.com"); //!! develop
 
 function App() {
   const [isConnected, setIsConnected] = useState(false);
