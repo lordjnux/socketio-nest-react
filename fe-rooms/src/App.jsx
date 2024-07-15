@@ -22,7 +22,8 @@ const App = () => {
     if (username) {
       usernameInputRef.current.disabled = true;
       console.log(username);
-      socket = io("https://c9knnnk6-3035.use2.devtunnels.ms/", {
+      // socket = io("https://c9knnnk6-3035.use2.devtunnels.ms/", {
+      socket = io("http://localhost:3035", {
         query: { username, hobbie: "programming" },
       });
       socket.on("connect", () => {
